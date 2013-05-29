@@ -2,7 +2,6 @@ package com.example.chessgame;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 
@@ -180,7 +179,10 @@ public class ChessBoard extends Activity{
 	
 	
 	
-	
+    public String[] gettingMovesForWidgetUpdate()
+    {
+    	return movesArray;
+    }
 
 	public class SquareAdapter extends BaseAdapter {
 
@@ -424,6 +426,9 @@ public class ChessBoard extends Activity{
 				return true;
 		    }
 
+		   
+		    
+		    
 		    public void findvalidmoves(View dragView,FrameLayout container)
 		    {
 		    	
