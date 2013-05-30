@@ -31,16 +31,18 @@ public final class R {
         public static final int square_border=0x7f020007;
     }
     public static final class id {
-        public static final int action_settings=0x7f09000a;
-        public static final int action_websearch=0x7f09000b;
+        public static final int action_settings=0x7f09000c;
+        public static final int action_websearch=0x7f09000d;
         public static final int chessboard=0x7f090003;
+        public static final int country_icon=0x7f090005;
+        public static final int country_name=0x7f090006;
         public static final int drawer_layout=0x7f090002;
-        public static final int grid_inner_text=0x7f090008;
+        public static final int grid_inner_text=0x7f09000a;
         public static final int left_drawer=0x7f090004;
-        public static final int relativeframe=0x7f090006;
-        public static final int square=0x7f090005;
-        public static final int square_background=0x7f090007;
-        public static final int stackWidgetView=0x7f090009;
+        public static final int relativeframe=0x7f090008;
+        public static final int square=0x7f090007;
+        public static final int square_background=0x7f090009;
+        public static final int stackWidgetView=0x7f09000b;
         public static final int startbutton=0x7f090001;
         public static final int textView1=0x7f090000;
     }

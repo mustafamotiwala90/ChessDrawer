@@ -6,14 +6,17 @@ import java.util.Map;
 
 
 import android.app.Activity;
+import android.appwidget.AppWidgetManager;
 import android.content.ClipData;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Html;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,12 +34,15 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.RemoteViews;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.*;
 
+
+import com.activeandroid.ActiveAndroid;
 
 public class ChessBoard extends Activity{
 
@@ -92,6 +98,7 @@ public class ChessBoard extends Activity{
 		
 		mTitle = mDrawerTitle = getTitle();
 		
+		ActiveAndroid.initialize(this);
 		
 		movesArray = new String[1000];
 
@@ -137,7 +144,8 @@ public class ChessBoard extends Activity{
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// TODO Auto-generated method stub
 		 MenuInflater inflater = getMenuInflater();
-	        inflater.inflate(R.menu.main, menu);		
+	        inflater.inflate(R.menu.main, menu);
+	        
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -149,6 +157,7 @@ public class ChessBoard extends Activity{
 		 if (mDrawerToggle.onOptionsItemSelected(item)) {
 	            return true;
 	        }	
+		 
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -177,12 +186,6 @@ public class ChessBoard extends Activity{
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
 	
-	
-	
-    public String[] gettingMovesForWidgetUpdate()
-    {
-    	return movesArray;
-    }
 
 	public class SquareAdapter extends BaseAdapter {
 
@@ -225,8 +228,6 @@ public class ChessBoard extends Activity{
 			boardPositions.put(position, value);
 			
 			board[(position%8)+1][(position/8)+1] = position;
-			
-//					Log.d("outside", "position is : " + (position + 1)+ "   while the value is : " + value);
 		
 		return value;
 		
@@ -401,14 +402,27 @@ public class ChessBoard extends Activity{
 								makeToastText(boardPositions.get(dragView.getTag()) + " To  "+ boardPositions.get(container.findViewById(R.id.grid_inner_text).getTag()));
 								
 								removeColourFromValidMoves(validmov);
-								movesArray[moveCount] = boardPositions.get(dragView.getTag()) + " To  "+ boardPositions.get(container.findViewById(R.id.grid_inner_text).getTag());
+								movesArray[moveCount] = boardPositions.get(dragView.getTag()) + " To "+ boardPositions.get(container.findViewById(R.id.grid_inner_text).getTag());
 								arrayAdapter = new ArrayAdapter<Object>(this.context, android.R.layout.simple_list_item_1, movesArray);
 						        mDrawerList.setAdapter(arrayAdapter);
-						        moveCount++;
+						       
+						        
+//						        Intent intent = new Intent(ChessBoard.this, MyWidgetProvider.class);
+//						        intent.putExtra("mydata",movesArray);
+//						        intent.setAction(Intent.ACTION_SEND);
+//						        ChessBoard.this.sendBroadcast(intent);
+//						        widgetmovesupdated(movesArray);
+						        
+						        
+						        Item item = new Item();
+						        item.number = moveCount;
+						        item.move = movesArray[moveCount];
+						        item.save();
+						        System.out.println("DATABASE SAVED WITH ENTRY AS : "+item.number+" AND : "+item.move);
+						        moveCount++; 
 						        
 							}
 						}
-//					System.out.println("ACTION_DROP");
 				}
 				else if (dragAction == DragEvent.ACTION_DRAG_ENDED)
 				{
@@ -426,7 +440,32 @@ public class ChessBoard extends Activity{
 				return true;
 		    }
 
-		   
+		   @SuppressWarnings("deprecation")
+		public void widgetmovesupdated(String[] movesArray)
+		   {
+			   
+			   Context context = ChessBoard.this;
+				AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+				
+				ComponentName thisWidget = new ComponentName(context, MyWidgetProvider.class);
+				int[] appWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+				
+				
+				
+				RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+				
+				Intent svcIntent=new Intent(context, StackWidgetService.class);
+				
+						svcIntent.putExtra("movesList",movesArray);
+						svcIntent.setData(Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
+
+						remoteViews.setRemoteAdapter(appWidgetIds[0], R.id.stackWidgetView,svcIntent);
+				
+				
+						appWidgetManager.updateAppWidget(appWidgetIds[0], remoteViews);
+			   
+			   
+		   }
 		    
 		    
 		    public void findvalidmoves(View dragView,FrameLayout container)
@@ -434,10 +473,6 @@ public class ChessBoard extends Activity{
 		    	
 		    	String currentpiece = boardPieces.get(dragView.getTag());
 				int currentpositiontag = (Integer) dragView.getTag();
-//				System.out.println(currentpiece + " > "+currentpositiontag);
-		
-//				System.out.println(tes.getTag() + " " +t1.getTag());
-//				t1.setBackgroundColor(Color.parseColor("#ffcc00"));
 				if(currentpiece!=null)
 				{
 					validmov = validMoves(currentpiece,currentpositiontag);
@@ -504,14 +539,8 @@ public class ChessBoard extends Activity{
 				        }
 				    }
 				}
-		    	
-		    	
-		    	
-		    	int pawnmaxmoves = 2;
-		    	int knightmoves = 2;
-		    	int rookmoves = 8;
-		    	
-		    	
+		    			    	
+		    	int pawnmaxmoves = 2;		    	
 		    	
 		    	if(currentpiece.equalsIgnoreCase(WhitePawn))
 				{
@@ -551,12 +580,7 @@ public class ChessBoard extends Activity{
 				else if(currentpiece.equalsIgnoreCase(WhiteKnight))
 				{
 					System.out.println("A white knight was moved from : "+currentpositiontag);
-					
-//						moveslist.add(currentpositiontag-(10));
-//						moveslist.add(currentpositiontag-(6));
-//						moveslist.add(currentpositiontag-(17));
-//						moveslist.add(currentpositiontag-(15));
-						
+
 				}
 				else if(currentpiece.equalsIgnoreCase(WhiteBishop))
 				{
@@ -741,4 +765,7 @@ public class ChessBoard extends Activity{
 		
 		
 	}
+	
+	
+	
 }

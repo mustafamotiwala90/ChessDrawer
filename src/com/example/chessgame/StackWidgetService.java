@@ -9,7 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-import android.widget.Toast;
+
 
 public class StackWidgetService extends RemoteViewsService{
 
@@ -25,8 +25,8 @@ public class StackWidgetService extends RemoteViewsService{
 
 		private Context ctxt=null;
 		  private int appWidgetId;
-		  public  String[] movesl;
-		  
+		  public  ArrayList<String> movesl=new ArrayList<String>();
+		  public  ArrayList<String> moveslistfinal = new ArrayList<String>();
 		  public String[] items={"lorem", "ipsum", "dolor",
               "sit", "amet", "consectetuer",
               "adipiscing", "elit", "morbi",
@@ -41,22 +41,29 @@ public class StackWidgetService extends RemoteViewsService{
 		  
 		
 		public StackRemoteViewsFactory(Context applicationContext, Intent intent) {
-			// TODO Auto-generated constructor stub
 		
 		this.ctxt = applicationContext;
 //		 appWidgetId=intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 //                 AppWidgetManager.INVALID_APPWIDGET_ID);
-		Bundle b = intent.getExtras();
-		 movesl = b.getStringArray("movesList");
 		
+//		 movesl = intent.getStringArrayExtra("movesList");
+		 movesl = intent.getStringArrayListExtra("stock_list");
+		 
 		
+		 for(int m=0;m<movesl.size();m++)
+		 {
+			 	if(!movesl.contains(movesl.get(m)))
+			 		moveslistfinal.add(movesl.get(m));
+		
+		 }
+		 
 		 
 		}
 
 		@Override
 		public int getCount() {
 			// TODO Auto-generated method stub
-			return items.length;
+			return movesl.size();
 		}
 
 		@Override
@@ -74,15 +81,18 @@ public class StackWidgetService extends RemoteViewsService{
 		@Override
 		public RemoteViews getViewAt(int position) {
 
+			
+			
 			RemoteViews row=new RemoteViews(ctxt.getPackageName(),R.layout.row);
 
-			System.out.println("Moves is at :"+movesl[position]);
-			row.setTextViewText(android.R.id.text1, movesl[position]);
-
+			row.setTextViewText(R.id.country_name, movesl.get(position));
+			row.setImageViewResource(R.id.country_icon, R.drawable.chess_icon);
+			
+			
 			Intent i=new Intent();
 			Bundle extras=new Bundle();
 
-			extras.putString(MyWidgetProvider.EXTRA_WORD, movesl[position]);
+			extras.putString(MyWidgetProvider.EXTRA_WORD, movesl.get(position));
 			i.putExtras(extras);
 			row.setOnClickFillInIntent(android.R.id.text1, i);
 
@@ -114,12 +124,9 @@ public class StackWidgetService extends RemoteViewsService{
 
 		@Override
 		public void onDestroy() {
-			Toast.makeText(ctxt, "Bye bye", Toast.LENGTH_SHORT).show();
+			// TODO Auto-generated method stub
 			
 		}
-		
-		
-		
 		
 		
 	}
