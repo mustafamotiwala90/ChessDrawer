@@ -15,3 +15,9 @@ Added the database feature to the project. All the moves are getting saved to a 
 Used a new ORM mapper called ActiveAndroid as a database manager. More info at : https://github.com/pardom/ActiveAndroid
 
 
+TODO:
+- Add the game LOGIC.
+- Add some UI features
+- Fix some bugs
+
+
